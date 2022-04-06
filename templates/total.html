@@ -1,0 +1,25 @@
+{% include 'header.html' %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Total</th>
+            <th scope="col">Total Profit</th>
+            <th scope="col">Date</th>
+
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for i in total:%}
+        <tr>
+            <td>{{ i.total|int}}</td>
+            <td>{{ i.total_profit|int }}</td>
+            <td>{{ i.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% include 'footer.html' %}

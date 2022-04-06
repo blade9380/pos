@@ -1,0 +1,35 @@
+{% include "header.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+{{ wtf.quick_form(form, button_map={"submit": "primary"}) }}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages%}
+{{message}}
+{% endfor %}
+{% endif %}
+{% endwith %}
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for item in items: %}
+        <tr>
+            <td>{{ item.name}}</td>
+            <td>{{ item.price|int }}</td>
+            <td>{{ item.quantity|int }}</td>
+            <td><a href="{{ url_for('edit', item_id=item.id)}}" class="btn btn-warning">Edit</a></td>
+            <td><a href="{{ url_for('sale', item_id=item.id)}}" class="btn btn-primary">Sell</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% include "footer.html" %}
