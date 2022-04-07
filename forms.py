@@ -14,7 +14,7 @@ class AddItem(FlaskForm):
 
 class Login(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
-    password = StringField("Password", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
 
 
@@ -34,3 +34,9 @@ class EditItem(FlaskForm):
 class SearchItem(FlaskForm):
     name = StringField('Search', validators=[DataRequired()])
     submit = SubmitField('Search')
+
+
+class EditProfile(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    password = StringField('Password', validators=[DataRequired()])
+    submit = SubmitField('Submit')

@@ -22,6 +22,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+@login_manager.user_loader
+def load_user(user):
+    return User.query.get(int(user))
+
+
 class Items(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
@@ -54,18 +59,15 @@ class MonthlyTotal(db.Model):
 db.create_all()
 
 
-@login_manager.user_loader
-def load_user(user):
-    return User.get(user)
-
-
 def admin_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if current_user.name != 'AMT':
-            return abort(403)
-        return f(*args, **kwargs)
-    return decorated_function()
+        if not current_user.is_anonymous:
+            if current_user.id != 1:
+                return abort(403)
+            return f(*args, **kwargs)
+        return abort(403)
+    return decorated_function
 
 
 @app.route('/')
@@ -74,6 +76,7 @@ def home():
 
 
 @app.route('/add', methods=['GET', 'POST'])
+@admin_only
 def add():
     form = AddItem()
     if form.validate_on_submit():
@@ -92,13 +95,22 @@ def add():
     return render_template('add.html', form=form)
 
 
-@ app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    # sold_item = User(
+    #     name='afaf',
+    #     password='afaf'
+    # )
+    # db.session.add(sold_item)
+    # db.session.commit()
     form = Login()
+    if request.method == 'GET':
+        return render_template('login.html', form=form)
+
     if form.validate_on_submit():
         email = form.name.data
         password = form.password.data
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(name=email).first()
         if not user:
             return redirect(url_for('login'))
         elif password != user.password:
@@ -106,10 +118,33 @@ def login():
         else:
             login_user(user)
             return redirect(url_for('home'))
-    return render_template('login.html', form=form)
 
 
-@ app.route('/show_items', methods=['GET', 'POST'])
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@admin_only
+def edit_profile():
+    edit_user = User.query.get(current_user.id)
+    form = EditProfile(
+        name=edit_user.name,
+        password=edit_user.password
+    )
+    if request.method == 'GET':
+        return render_template('edit_profile.html', form=form)
+    if form.validate_on_submit():
+        edit_user.name = form.name.data
+        edit_user.password = form.password.data
+        db.session.commit()
+        return redirect(url_for('home'))
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
+@app.route('/show_items', methods=['GET', 'POST'])
+@admin_only
 def show_items():
     form = SearchItem()
     item = Items.query.all()
@@ -128,7 +163,8 @@ def show_items():
             return redirect(url_for('show_items'))
 
 
-@ app.route('/delete/<int:item_id>')
+@app.route('/delete/<int:item_id>')
+@admin_only
 def delete_item(item_id):
     item_to_delete = Items.query.get(item_id)
     db.session.delete(item_to_delete)
@@ -136,7 +172,8 @@ def delete_item(item_id):
     return redirect(url_for('show_items'))
 
 
-@ app.route('/sale/<int:item_id>', methods=['GET', 'POST'])
+@app.route('/sale/<int:item_id>', methods=['GET', 'POST'])
+@admin_only
 def sale(item_id):
     form = SaleItem()
     item_to_update = Items.query.get(item_id)
@@ -173,12 +210,13 @@ def sale(item_id):
             db.session.add(sold_item)
             db.session.commit()
         else:
-            flash("Invaild quantity.")
+            flash("Invalid quantity.")
             return redirect(url_for('sale', item_id=item_id))
         return redirect(url_for('show_items'))
 
 
 @app.route('/edit/<int:item_id>', methods=['GET', 'POST'])
+@admin_only
 def edit(item_id):
     item = Items.query.get(item_id)
     form = EditItem(
@@ -197,6 +235,7 @@ def edit(item_id):
 
 
 @app.route('/total')
+@admin_only
 def total():
     sold_item = Sale.query.all()
     total = MonthlyTotal.query.all()
