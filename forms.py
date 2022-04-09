@@ -15,8 +15,8 @@ class AddItem(FlaskForm):
 
 
 class Login(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()], render_kw={'placeholder': 'Username'})
+    password = PasswordField("Password", validators=[DataRequired()], render_kw={'placeholder': 'password'})
     submit = SubmitField("Login")
 
 

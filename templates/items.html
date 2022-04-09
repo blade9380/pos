@@ -21,7 +21,6 @@
         </tr>
         
     </thead>
-    <hr class="table-line">
     <tbody>
 
         {% for item in items: %}
@@ -30,7 +29,7 @@
             <td>{{ item.price|int }}</td>
             <td>{{ item.quantity|int }}</td>
             <td><a href="{{ url_for('edit', item_id=item.id)}}" class="btn btn-warning">Edit</a></td>
-            <td><a href="{{ url_for('sale', item_id=item.id)}}" class="btn btn-primary">Sell</a></td>
+            <td><a href="{{ url_for('sale', item_id=item.id)}}" class="btn" id="submit">Sell</a></td>
         </tr>
         {% endfor %}
     </tbody>
