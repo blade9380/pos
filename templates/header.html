@@ -8,39 +8,45 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&family=Merriweather:ital,wght@0,300;1,900&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/8b754422bb.js" crossorigin="anonymous"></script>
     <title>Pos</title>
 </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('home') }}">AMT</a>
+            <a class="navbar-brand" href="{{ url_for('home') }}">AMT <i class="fa-solid fa-store"></i></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <div class="collapse navbar-collapse me-3" id="navbarSupportedContent">
+                <ul class="navbar-nav me-3 mb-2 mb-lg-0">
                     {% if current_user.is_authenticated: %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{ url_for('add') }}">Add</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('show_items') }}">Items</a>
+                        <a class="nav-thing nav-link active" href="{{ url_for('show_items') }}">Items</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('total') }}">Monthly Total</a>
+                        <a class="nav-thing nav-link active" href="{{ url_for('total') }}">Monthly Total</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('edit_profile') }}">Edit Profile</a>
+                        <a class="nav-thing nav-link active" href="{{ url_for('edit_profile') }}">Edit Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('logout') }}">Log Out</a>
+                        <a class="nav-thing nav-link active" href="{{ url_for('logout') }}">Log Out <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
                     </li>
                     {% else: %}
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('login') }}">Login</a>
+                        <a class="nav-thing nav-link active" href="{{ url_for('login') }}">Login</a>
                     </li>
                     {% endif %}
                 </ul>

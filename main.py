@@ -260,8 +260,10 @@ def total():
         for i in total:
             i.total = total_money
             i.total_profit = total_profit
+            i.date = datetime.now()
             db.session.commit()
     new_total = MonthlyTotal.query.all()
+
     return render_template('total.html', total=new_total)
 
 

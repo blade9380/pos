@@ -1,7 +1,13 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% include "header.html" %}
+{% block style %}
+<link rel="stylesheet" href="static/styles.css">
+{% endblock %}
 {% block content %}
-{{ wtf.quick_form(form, button_map={"submit": "primary"}) }}
+<div class="container mt-5">
+{{ wtf.quick_form(form)}}
+</div>
+
 {% endblock %}
 {% with messages = get_flashed_messages() %}
 {% if messages %}
