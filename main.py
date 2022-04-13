@@ -98,8 +98,8 @@ def add():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # sold_item = User(
-    #     name='afaf',
-    #     password='afaf'
+    #     name='AMT',
+    #     password='AMT'
     # )
     # db.session.add(sold_item)
     # db.session.commit()

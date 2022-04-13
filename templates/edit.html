@@ -1,7 +1,10 @@
 {% include 'header.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
-{{ wtf.quick_form(form, button_map={"submit": "primary"}) }}
+<div class="container">
+{{ wtf.quick_form(form)}}
+
 <a href="{{ url_for('delete_item', item_id=item.id)}}" class="btn btn-danger">Delete</a>
+    </div>
 {% endblock %}
 {% include 'footer.html' %}

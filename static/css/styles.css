@@ -39,7 +39,7 @@ body {
 }
 #submit:hover {
     box-shadow: 2px 2px 5px blue;
-    transition: box-shadow 0.5s ease-out;
+    transition: box-shadow 0.3s ease-out;
 
 }
 .table-line {
