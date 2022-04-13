@@ -1,10 +1,9 @@
-from re import S, U
 from flask import Flask, render_template, redirect, url_for, request, abort, flash
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 from sqlalchemy import desc
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, form
 from wtforms import StringField, SubmitField
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from wtforms.validators import DataRequired
@@ -56,6 +55,13 @@ class MonthlyTotal(db.Model):
     date = db.Column(db.Date, nullable=False)
 
 
+class DailyTotal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    daily = db.Column(db.Integer, nullable=False)
+    daily_profit = db.Column(db.Float, nullable=False)
+    date = db.Column(db.Date, nullable=False)
+
+
 db.create_all()
 
 
@@ -67,6 +73,7 @@ def admin_only(f):
                 return abort(403)
             return f(*args, **kwargs)
         return abort(403)
+
     return decorated_function
 
 
@@ -103,7 +110,7 @@ def login():
     # )
     # db.session.add(sold_item)
     # db.session.commit()
-    form = Login()
+    # form = Login()
     if request.method == 'GET':
         return render_template('login.html', form=form)
 
@@ -265,6 +272,35 @@ def total():
     new_total = MonthlyTotal.query.all()
 
     return render_template('total.html', total=new_total)
+
+
+@app.route('/daily')
+def daily():
+    sold_item = Sale.query.all()
+    daily_total = DailyTotal.query.all()
+    today = datetime.now().day
+    total_money, total_profit = 0, 0
+    sold = [i for i in sold_item if i.date.day == today]
+    current_total = [i for i in daily_total if i.date.day == today]
+    for i in sold:
+        total_money += i.price
+        total_profit += i.total
+    if not current_total:
+        add_total = DailyTotal(
+            daily=total_money,
+            daily_profit=total_profit,
+            date=datetime.now()
+        )
+        db.session.add(add_total)
+        db.session.commit()
+    else:
+        for i in current_total:
+            i.daily = total_money
+            i.daily_profit = total_profit
+            i.date = datetime.now()
+            db.session.commit()
+    new_total = DailyTotal.query.all()
+    return render_template('daily_total.html', total=new_total)
 
 
 if __name__ == '__main__':

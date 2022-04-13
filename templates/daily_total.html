@@ -1,0 +1,25 @@
+{% include 'header.html' %}
+
+<table class="table container sale-table">
+    <thead>
+        <tr>
+            <th scope="col">DailyTotal</th>
+            <th scope="col">DailyProfit</th>
+            <th scope="col">Date</th>
+
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for i in total:%}
+        <tr>
+            <td>{{ i.daily|int}}</td>
+            <td>{{ i.daily_profit|int }}</td>
+            <td>{{ i.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% include 'footer.html' %}
