@@ -2,9 +2,8 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 <div class="container search-group">
-{{form.name.label(class='form-label')}}<br>
-{{form.name(class="form-control", id='search-form')}}<button class="btn search-button" id="submit">Search</button>
-</div>
+{{ wtf.quick_form(form)}}
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 {% for message in messages%}
@@ -12,6 +11,7 @@
 {% endfor %}
 {% endif %}
 {% endwith %}
+    </div>
 <table class="table container">
     <thead>
         <tr>

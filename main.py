@@ -110,7 +110,7 @@ def login():
     # )
     # db.session.add(sold_item)
     # db.session.commit()
-    # form = Login()
+    form = Login()
     if request.method == 'GET':
         return render_template('login.html', form=form)
 
