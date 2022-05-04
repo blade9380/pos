@@ -2,16 +2,18 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 <div class="container">
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages%}
-{{message}}
-{% endfor %}
-{% endif %}
-{% endwith %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages%}
+    {{message}}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
-    {{ item.name }}
-{{ wtf.quick_form(form, button_map={"submit": "primary"}) }}
-        </div>
+    <h5>Item name: {{ item.name }}</h5>
+    <h5>Original Price: {{ item.price | int }}</h5>
+    <h5>Stock Left: {{ item.quantity | int }}</h5>
+    {{ wtf.quick_form(form, button_map={"submit": "primary"}) }}
+</div>
 {% endblock %}
 {% include 'footer.html' %}

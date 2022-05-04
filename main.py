@@ -45,14 +45,14 @@ class Sale(db.Model):
     price = db.Column(db.Float, nullable=False)
     total = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Float, nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=False, unique=True)
 
 
 class MonthlyTotal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     total = db.Column(db.Float, nullable=False)
     total_profit = db.Column(db.Float, nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=False, unique=True)
 
 
 class DailyTotal(db.Model):
@@ -85,21 +85,21 @@ def home():
 @app.route('/add', methods=['GET', 'POST'])
 @admin_only
 def add():
-    form = AddItem()
-    if form.validate_on_submit():
-        item = Items.query.filter_by(name=form.name.data).first()
+    add_item_form = AddItem()
+    if add_item_form.validate_on_submit():
+        item = Items.query.filter_by(name=add_item_form.name.data).first()
         if not item:
             new_item = Items(
-                name=form.name.data,
-                price=form.price.data,
-                quantity=form.quantity.data
+                name=add_item_form.name.data,
+                price=add_item_form.price.data,
+                quantity=add_item_form.quantity.data
             )
             db.session.add(new_item)
             db.session.commit()
             return redirect(url_for('add'))
         else:
             return redirect(f'/edit/{item.id}')
-    return render_template('add.html', form=form)
+    return render_template('add.html', form=add_item_form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -110,13 +110,13 @@ def login():
     # )
     # db.session.add(sold_item)
     # db.session.commit()
-    form = Login()
+    login_form = Login()
     if request.method == 'GET':
-        return render_template('login.html', form=form)
+        return render_template('login.html', form=login_form)
 
-    if form.validate_on_submit():
-        email = form.name.data
-        password = form.password.data
+    if login_form.validate_on_submit():
+        email = login_form.name.data
+        password = login_form.password.data
         user = User.query.filter_by(name=email).first()
         if not user:
             return redirect(url_for('login'))
@@ -131,15 +131,15 @@ def login():
 @admin_only
 def edit_profile():
     edit_user = User.query.get(current_user.id)
-    form = EditProfile(
+    edit_profile_form = EditProfile(
         name=edit_user.name,
         password=edit_user.password
     )
     if request.method == 'GET':
-        return render_template('edit_profile.html', form=form)
-    if form.validate_on_submit():
-        edit_user.name = form.name.data
-        edit_user.password = form.password.data
+        return render_template('edit_profile.html', form=edit_profile_form)
+    if edit_profile_form.validate_on_submit():
+        edit_user.name = edit_profile_form.name.data
+        edit_user.password = edit_profile_form.password.data
         db.session.commit()
         return redirect(url_for('home'))
 
@@ -153,18 +153,18 @@ def logout():
 @app.route('/show_items', methods=['GET', 'POST'])
 @admin_only
 def show_items():
-    form = SearchItem()
+    search_form = SearchItem()
     item = Items.query.all()
     if request.method == 'GET':
-        return render_template('items.html', items=item, form=form)
-    if form.validate_on_submit():
+        return render_template('items.html', items=item, form=search_form)
+    if search_form.validate_on_submit():
         searched_item = []
         for i in item:
-            if i.name.startswith(form.name.data):
+            if i.name.startswith(search_form.name.data):
                 searched_item.append(
                     Items.query.filter_by(name=i.name).first())
         if searched_item:
-            return render_template('items.html', items=searched_item, form=form)
+            return render_template('items.html', items=searched_item, form=search_form)
         else:
             flash("There is no item starts with that name.")
             return redirect(url_for('show_items'))
@@ -182,13 +182,13 @@ def delete_item(item_id):
 @app.route('/sale/<int:item_id>', methods=['GET', 'POST'])
 @admin_only
 def sale(item_id):
-    form = SaleItem()
+    sale_form = SaleItem()
     item_to_update = Items.query.get(item_id)
     if request.method == 'GET':
-        return render_template('sale.html', form=form, item=item_to_update)
-    if form.validate_on_submit():
-        price = int(form.price.data)
-        quantity = int(form.quantity.data)
+        return render_template('sale.html', form=sale_form, item=item_to_update)
+    if sale_form.validate_on_submit():
+        price = int(sale_form.price.data)
+        quantity = int(sale_form.quantity.data)
         updated_item = Items.query.get(item_id)
         total_sold = price * quantity
         profit = total_sold - (updated_item.price * quantity)
@@ -226,24 +226,24 @@ def sale(item_id):
 @admin_only
 def edit(item_id):
     item = Items.query.get(item_id)
-    form = EditItem(
+    edit_item_form = EditItem(
         name=item.name,
         price=int(item.price),
         quantity=int(item.quantity)
     )
     if request.method == 'GET':
-        return render_template('edit.html', form=form, item=item)
-    if form.validate_on_submit():
-        item.name = form.name.data
-        item.price = form.price.data
-        item.quantity = form.quantity.data
+        return render_template('edit.html', form=edit_item_form, item=item)
+    if edit_item_form.validate_on_submit():
+        item.name = edit_item_form.name.data
+        item.price = edit_item_form.price.data
+        item.quantity = edit_item_form.quantity.data
         db.session.commit()
         return redirect(url_for('show_items'))
 
 
-@app.route('/total')
+@app.route('/monthly_total')
 @admin_only
-def total():
+def monthly_total():
     sold_item = Sale.query.all()
     total = MonthlyTotal.query.all()
     month, year = datetime.now().month, datetime.now().year
@@ -274,14 +274,16 @@ def total():
     return render_template('total.html', total=new_total)
 
 
-@app.route('/daily')
-def daily():
+@app.route('/daily_total/<year_month>')
+def daily_total(year_month):
+    requested_year, requested_month = year_month.split('-')[0], year_month.split('-')[1]
+    print(requested_year, requested_month)
     sold_item = Sale.query.all()
-    daily_total = DailyTotal.query.all()
+    first_daily_total = DailyTotal.query.all()
     today = datetime.now().day
     total_money, total_profit = 0, 0
     sold = [i for i in sold_item if i.date.day == today]
-    current_total = [i for i in daily_total if i.date.day == today]
+    current_total = [i for i in first_daily_total if i.date.day == today]
     for i in sold:
         total_money += i.price
         total_profit += i.total

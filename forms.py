@@ -1,6 +1,4 @@
 from logging import PlaceHolder
-from tokenize import String
-from winreg import REG_NO_LAZY_FLUSH
 from flask import Flask
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
@@ -21,8 +19,8 @@ class Login(FlaskForm):
 
 
 class SaleItem(FlaskForm):
-    quantity = StringField('Quantity', validators=[DataRequired()])
     price = StringField('Price', validators=[DataRequired()])
+    quantity = StringField('Quantity', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
