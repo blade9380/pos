@@ -276,8 +276,20 @@ def monthly_total():
 
 @app.route('/daily_total/<year_month>')
 def daily_total(year_month):
-    requested_year, requested_month = year_month.split('-')[0], year_month.split('-')[1]
-    print(requested_year, requested_month)
+    print(year_month)
+    requested_year, requested_month = int(year_month.split('-')[0]), int(year_month.split('-')[1])
+    start_date = datetime.strptime(f'{requested_year}-{requested_month}-1', '%Y-%m-%d')
+    if (requested_year % 400 == 0) and (requested_year % 100 == 0) and requested_month == 2:
+        end_date = datetime.strptime(f'{requested_year}-{requested_month}-29', '%Y-%m-%d')
+    elif (requested_year % 4 == 0) and (requested_year % 100 != 0) and requested_month == 2:
+        end_date = datetime.strptime(f'{requested_year}-{requested_month}-29', '%Y-%m-%d')
+    elif requested_month in [4, 6, 9, 11]:
+        end_date = datetime.strptime(f'{requested_year}-{requested_month}-30', '%Y-%m-%d')
+    else:
+        end_date = datetime.strptime(f'{requested_year}-{requested_month}-31', '%Y-%m-%d')
+
+    print(start_date)
+    print(type(end_date))
     sold_item = Sale.query.all()
     first_daily_total = DailyTotal.query.all()
     today = datetime.now().day
