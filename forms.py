@@ -31,6 +31,14 @@ class EditItem(FlaskForm):
     submit = SubmitField('Submit')
 
 
+class EditSoldItem(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    price = StringField('Price', validators=[DataRequired()])
+    quantity = StringField('Quantity', validators=[DataRequired()])
+    confirm = StringField('Confirm edit by writing "confirm"', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
 class SearchItem(FlaskForm):
     name = StringField('Search', validators=[DataRequired()], render_kw={'placeholder': 'Search Item'})
     submit = SubmitField('Search')

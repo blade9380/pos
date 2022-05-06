@@ -16,7 +16,7 @@
             <td>{{ i.total|int}}</td>
             <td>{{ i.total_profit|int }}</td>
             <td>{{ i.date }}</td>
-            <td><a class="btn btn-primary" href="{{ url_for('daily_total', year_month=i.date)}}">Daily</a></td>
+            <td><a class="btn btn-primary" href="{{ url_for('daily_total', year_month=i.date) }}">Daily</a></td>
         </tr>
         {% endfor %}
     </tbody>

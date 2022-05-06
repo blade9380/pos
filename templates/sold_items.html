@@ -1,0 +1,21 @@
+{% include 'header.html' %}
+<table class="table container">
+    <thead>
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Quantity</th>
+    </tr>
+
+    </thead>
+    {% for item in items: %}
+    <tr>
+        <td>{{ item.name}}</td>
+        <td>{{ item.price|int }}</td>
+        <td>{{ item.quantity|int }}</td>
+        <td>{{ item.id }}</td>
+        <td><a href="{{ url_for('edit_sold_items', item_id=item.id) }}" class="btn btn-warning">Edit</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% include 'footer.html' %}

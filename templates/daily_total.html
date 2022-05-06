@@ -11,11 +11,12 @@
     </thead>
     <tbody>
 
-        {% for i in total:%}
+        {% for i in total %}
         <tr>
-            <td>{{ i.daily|int}}</td>
-            <td>{{ i.daily_profit|int }}</td>
+            <td>{{ i.daily | int}}</td>
+            <td>{{ i.daily_profit | int }}</td>
             <td>{{ i.date }}</td>
+            <td><a class="btn btn-primary" href="{{ url_for('sold_items', date=i.date) }}">Sold Items</a></td>
         </tr>
         {% endfor %}
     </tbody>

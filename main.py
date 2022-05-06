@@ -10,6 +10,7 @@ from wtforms.validators import DataRequired
 import requests
 from forms import *
 from datetime import datetime
+from faker import Faker
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -41,11 +42,12 @@ class User(UserMixin, db.Model):
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False, unique=True)
+    name = db.Column(db.String(100), nullable=False, unique=False)
+    purchased_price = db.Column(db.Float, nullable=False)
     price = db.Column(db.Float, nullable=False)
     total = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Float, nullable=False)
-    date = db.Column(db.Date, nullable=False, unique=True)
+    date = db.Column(db.Date, nullable=False, unique=False)
 
 
 class MonthlyTotal(db.Model):
@@ -86,6 +88,7 @@ def home():
 @admin_only
 def add():
     add_item_form = AddItem()
+
     if add_item_form.validate_on_submit():
         item = Items.query.filter_by(name=add_item_form.name.data).first()
         if not item:
@@ -99,6 +102,7 @@ def add():
             return redirect(url_for('add'))
         else:
             return redirect(f'/edit/{item.id}')
+
     return render_template('add.html', form=add_item_form)
 
 
@@ -111,6 +115,7 @@ def login():
     # db.session.add(sold_item)
     # db.session.commit()
     login_form = Login()
+
     if request.method == 'GET':
         return render_template('login.html', form=login_form)
 
@@ -131,12 +136,15 @@ def login():
 @admin_only
 def edit_profile():
     edit_user = User.query.get(current_user.id)
+
     edit_profile_form = EditProfile(
         name=edit_user.name,
         password=edit_user.password
     )
+
     if request.method == 'GET':
         return render_template('edit_profile.html', form=edit_profile_form)
+
     if edit_profile_form.validate_on_submit():
         edit_user.name = edit_profile_form.name.data
         edit_user.password = edit_profile_form.password.data
@@ -155,8 +163,10 @@ def logout():
 def show_items():
     search_form = SearchItem()
     item = Items.query.all()
+
     if request.method == 'GET':
         return render_template('items.html', items=item, form=search_form)
+
     if search_form.validate_on_submit():
         searched_item = []
         for i in item:
@@ -176,7 +186,18 @@ def delete_item(item_id):
     item_to_delete = Items.query.get(item_id)
     db.session.delete(item_to_delete)
     db.session.commit()
+
     return redirect(url_for('show_items'))
+
+
+@app.route('/sold_item_delete/<int:item_id>')
+@admin_only
+def sold_item_delete(item_id):
+    item_to_delete = Sale.query.get(item_id)
+    db.session.delete(item_to_delete)
+    db.session.commit()
+
+    return redirect(url_for('monthly_total'))
 
 
 @app.route('/sale/<int:item_id>', methods=['GET', 'POST'])
@@ -184,8 +205,10 @@ def delete_item(item_id):
 def sale(item_id):
     sale_form = SaleItem()
     item_to_update = Items.query.get(item_id)
+
     if request.method == 'GET':
         return render_template('sale.html', form=sale_form, item=item_to_update)
+
     if sale_form.validate_on_submit():
         price = int(sale_form.price.data)
         quantity = int(sale_form.quantity.data)
@@ -199,6 +222,7 @@ def sale(item_id):
                 name=item_to_update.name,
                 price=total_sold,
                 total=profit,
+                purchased_price=updated_item.price,
                 quantity=quantity,
                 date=datetime.now()
             )
@@ -209,6 +233,7 @@ def sale(item_id):
             db.session.commit()
             sold_item = Sale(
                 name=item_to_update.name,
+                purchased_price=updated_item.price,
                 price=total_sold,
                 total=profit,
                 quantity=quantity,
@@ -219,6 +244,7 @@ def sale(item_id):
         else:
             flash("Invalid quantity.")
             return redirect(url_for('sale', item_id=item_id))
+
         return redirect(url_for('show_items'))
 
 
@@ -226,13 +252,16 @@ def sale(item_id):
 @admin_only
 def edit(item_id):
     item = Items.query.get(item_id)
+
     edit_item_form = EditItem(
         name=item.name,
         price=int(item.price),
         quantity=int(item.quantity)
     )
+
     if request.method == 'GET':
         return render_template('edit.html', form=edit_item_form, item=item)
+
     if edit_item_form.validate_on_submit():
         item.name = edit_item_form.name.data
         item.price = edit_item_form.price.data
@@ -247,14 +276,20 @@ def monthly_total():
     sold_item = Sale.query.all()
     total = MonthlyTotal.query.all()
     month, year = datetime.now().month, datetime.now().year
-    sold_items = [i for i in sold_item if i.date.year ==
-                  year and i.date.month == month]
+
+    sold_items1 = [i for i in sold_item if i.date.year ==
+                   year and i.date.month == month]
+    for i in sold_items1:
+        print(i.total)
     total1 = [i for i in total if i.date.year ==
               year and i.date.month == month]
+
     total_money, total_profit = 0, 0
-    for i in sold_items:
+
+    for i in sold_items1:
         total_money += i.price
         total_profit += i.total
+
     if not total1:
         add_total = MonthlyTotal(
             total=total_money,
@@ -269,6 +304,7 @@ def monthly_total():
             i.total_profit = total_profit
             i.date = datetime.now()
             db.session.commit()
+
     new_total = MonthlyTotal.query.all()
 
     return render_template('total.html', total=new_total)
@@ -276,9 +312,9 @@ def monthly_total():
 
 @app.route('/daily_total/<year_month>')
 def daily_total(year_month):
-    print(year_month)
     requested_year, requested_month = int(year_month.split('-')[0]), int(year_month.split('-')[1])
     start_date = datetime.strptime(f'{requested_year}-{requested_month}-1', '%Y-%m-%d')
+
     if (requested_year % 400 == 0) and (requested_year % 100 == 0) and requested_month == 2:
         end_date = datetime.strptime(f'{requested_year}-{requested_month}-29', '%Y-%m-%d')
     elif (requested_year % 4 == 0) and (requested_year % 100 != 0) and requested_month == 2:
@@ -288,14 +324,14 @@ def daily_total(year_month):
     else:
         end_date = datetime.strptime(f'{requested_year}-{requested_month}-31', '%Y-%m-%d')
 
-    print(start_date)
-    print(type(end_date))
     sold_item = Sale.query.all()
     first_daily_total = DailyTotal.query.all()
     today = datetime.now().day
     total_money, total_profit = 0, 0
+
     sold = [i for i in sold_item if i.date.day == today]
     current_total = [i for i in first_daily_total if i.date.day == today]
+
     for i in sold:
         total_money += i.price
         total_profit += i.total
@@ -313,8 +349,41 @@ def daily_total(year_month):
             i.daily_profit = total_profit
             i.date = datetime.now()
             db.session.commit()
-    new_total = DailyTotal.query.all()
+
+    new_total = DailyTotal.query.filter(DailyTotal.date.between(start_date, end_date)).all()
+
     return render_template('daily_total.html', total=new_total)
+
+
+@app.route('/sold_items/<date>')
+def sold_items(date):
+    daily_sold_items = Sale.query.filter_by(date=date).all()
+    return render_template('sold_items.html', items=daily_sold_items)
+
+
+@app.route('/edit_sold_items/<item_id>', methods=['POST', 'GET'])
+def edit_sold_items(item_id):
+    item = Sale.query.get(item_id)
+    edit_sold_item_form = EditSoldItem(
+        name=item.name,
+        price=int(item.price),
+        quantity=int(item.quantity)
+    )
+
+    if request.method == 'GET':
+        return render_template('edit_sold_items.html', form=edit_sold_item_form, item=item)
+
+    if edit_sold_item_form.validate_on_submit():
+        if edit_sold_item_form.confirm.data == 'confirm':
+            item.name = edit_sold_item_form.name.data
+            item.price = edit_sold_item_form.price.data
+            item.quantity = edit_sold_item_form.quantity.data
+            item.total = float(edit_sold_item_form.price.data) - item.purchased_price
+            db.session.commit()
+            return redirect(url_for('sold_items', date=item.date))
+        else:
+            flash("Please write 'confirm'.")
+            return redirect(url_for('edit_sold_items', item_id=item_id))
 
 
 if __name__ == '__main__':
