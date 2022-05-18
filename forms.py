@@ -1,7 +1,7 @@
 from logging import PlaceHolder
 from flask import Flask
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField, RadioField
 from wtforms.validators import DataRequired, URL
 
 
@@ -21,6 +21,7 @@ class Login(FlaskForm):
 class SaleItem(FlaskForm):
     price = StringField('Price', validators=[DataRequired()])
     quantity = StringField('Quantity', validators=[DataRequired()])
+    month = RadioField("radio", choices=['Confirm'], validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -34,8 +35,6 @@ class EditItem(FlaskForm):
 class EditSoldItem(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     price = StringField('Price', validators=[DataRequired()])
-    quantity = StringField('Quantity', validators=[DataRequired()])
-    confirm = StringField('Confirm edit by writing "confirm"', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 

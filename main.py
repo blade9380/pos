@@ -45,6 +45,7 @@ class Sale(db.Model):
     name = db.Column(db.String(100), nullable=False, unique=False)
     purchased_price = db.Column(db.Float, nullable=False)
     price = db.Column(db.Float, nullable=False)
+    # total mean profit
     total = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False, unique=False)
@@ -190,16 +191,6 @@ def delete_item(item_id):
     return redirect(url_for('show_items'))
 
 
-@app.route('/sold_item_delete/<int:item_id>')
-@admin_only
-def sold_item_delete(item_id):
-    item_to_delete = Sale.query.get(item_id)
-    db.session.delete(item_to_delete)
-    db.session.commit()
-
-    return redirect(url_for('monthly_total'))
-
-
 @app.route('/sale/<int:item_id>', methods=['GET', 'POST'])
 @admin_only
 def sale(item_id):
@@ -324,18 +315,15 @@ def daily_total(year_month):
     else:
         end_date = datetime.strptime(f'{requested_year}-{requested_month}-31', '%Y-%m-%d')
 
-    sold_item = Sale.query.all()
-    first_daily_total = DailyTotal.query.all()
-    today = datetime.now().day
+    sold_item = Sale.query.filter_by(date=datetime.now().date()).all()
+    first_daily_total = DailyTotal.query.filter_by(date=datetime.now().date()).all()
+    print(first_daily_total, 1)
     total_money, total_profit = 0, 0
-
-    sold = [i for i in sold_item if i.date.day == today]
-    current_total = [i for i in first_daily_total if i.date.day == today]
-
-    for i in sold:
+    print(total_profit, 2)
+    for i in sold_item:
         total_money += i.price
         total_profit += i.total
-    if not current_total:
+    if not first_daily_total:
         add_total = DailyTotal(
             daily=total_money,
             daily_profit=total_profit,
@@ -344,7 +332,7 @@ def daily_total(year_month):
         db.session.add(add_total)
         db.session.commit()
     else:
-        for i in current_total:
+        for i in first_daily_total:
             i.daily = total_money
             i.daily_profit = total_profit
             i.date = datetime.now()
@@ -367,23 +355,32 @@ def edit_sold_items(item_id):
     edit_sold_item_form = EditSoldItem(
         name=item.name,
         price=int(item.price),
-        quantity=int(item.quantity)
     )
 
     if request.method == 'GET':
         return render_template('edit_sold_items.html', form=edit_sold_item_form, item=item)
 
     if edit_sold_item_form.validate_on_submit():
-        if edit_sold_item_form.confirm.data == 'confirm':
-            item.name = edit_sold_item_form.name.data
-            item.price = edit_sold_item_form.price.data
-            item.quantity = edit_sold_item_form.quantity.data
-            item.total = float(edit_sold_item_form.price.data) - item.purchased_price
+        item.name = edit_sold_item_form.name.data
+        item.price = edit_sold_item_form.price.data
+        item.total = float(edit_sold_item_form.price.data) - item.purchased_price
+        db.session.commit()
+
+        sold_item = Sale.query.filter_by(date=datetime.now().day).all()
+        first_daily_total = DailyTotal.query.filter_by(date=datetime.now().day).all()
+        total_money, total_profit = 0, 0
+
+        for i in sold_item:
+            total_money += i.price
+            total_profit += i.total
+
+        for i in first_daily_total:
+            i.daily = total_money
+            i.daily_profit = total_profit
+            i.date = datetime.now()
             db.session.commit()
-            return redirect(url_for('sold_items', date=item.date))
-        else:
-            flash("Please write 'confirm'.")
-            return redirect(url_for('edit_sold_items', item_id=item_id))
+
+        return redirect(url_for('sold_items', date=item.date))
 
 
 if __name__ == '__main__':

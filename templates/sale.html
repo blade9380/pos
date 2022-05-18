@@ -13,7 +13,29 @@
     <h5>Item name: {{ item.name }}</h5>
     <h5>Original Price: {{ item.price | int }}</h5>
     <h5>Stock Left: {{ item.quantity | int }}</h5>
-    {{ wtf.quick_form(form, button_map={"submit": "primary"}) }}
+    {{ wtf.quick_form(form)}}
+</div>
+
+
 </div>
 {% endblock %}
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Sale</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you want to sell?
+            </div>
+            <div class="modal-footer">
+                <form action="{{ url_for('sale', item_id=item.id)}}" method="post" class="form" role="form">
+                    {{ form.submit }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% include 'footer.html' %}

@@ -3,35 +3,7 @@
 {% block content %}
 <div class="container">
     {{ wtf.quick_form(form)}}
-    <br>
-    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        Delete
-    </button>
-
 </div>
 {% endblock %}
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages%}
-{{message}}
-{% endfor %}
-{% endif %}
-{% endwith %}
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Do you want to delete?
-            </div>
-            <div class="modal-footer">
-                <a href="{{ url_for('sold_item_delete', item_id=item.id)}}" class="btn btn-danger">Delete</a>
-            </div>
-        </div>
-    </div>
-</div>
 
 {% include 'footer.html' %}
