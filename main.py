@@ -10,7 +10,6 @@ from wtforms.validators import DataRequired
 import requests
 from forms import *
 from datetime import datetime
-from faker import Faker
 
 app = Flask(__name__)
 Bootstrap(app)

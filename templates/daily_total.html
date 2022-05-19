@@ -16,7 +16,7 @@
             <td>{{ i.daily | int}}</td>
             <td>{{ i.daily_profit | int }}</td>
             <td>{{ i.date }}</td>
-            <td><a class="btn btn-primary" href="{{ url_for('sold_items', date=i.date) }}">Sold Items</a></td>
+            <td><a class='btn search-button' id="submit" href="{{ url_for('sold_items', date=i.date) }}">Sold Items</a></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -13,6 +13,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&family=Merriweather:ital,wght@0,300;1,900&display=swap"
         rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&family=Merriweather:ital,wght@0,300;1,900&display=swap"
+        rel="stylesheet">
     <script src="https://kit.fontawesome.com/8b754422bb.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="static/css">
     <title>Pos</title>
@@ -44,7 +49,8 @@
                         <a class="nav-thing nav-link active" href="{{ url_for('edit_profile') }}">Edit Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-thing nav-link active" href="{{ url_for('logout') }}">Log Out <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+                        <a class="nav-thing nav-link active" href="{{ url_for('logout') }}">Log Out <i
+                                class="fa-solid fa-arrow-right-from-bracket"></i></a>
                     </li>
                     {% else: %}
                     <li class="nav-item">
