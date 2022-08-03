@@ -11,7 +11,11 @@
     {% endwith %}
 
     <h5>Item name: {{ item.name }}</h5>
-    <h5>Original Price: {{ item.price | int }}</h5>
+    <h5>Original Price: {% if item.price.is_integer() %}
+        {{ item.price | int }}
+        {% else %}
+        {{ item.price }}
+        {% endif %}</h5>
     <h5>Stock Left: {{ item.quantity | int }}</h5>
     {{ wtf.quick_form(form)}}
 </div>

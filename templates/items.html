@@ -2,9 +2,9 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 <div class="container search-group">
-{{form.name.label(class='form-label')}}<br>
-{{form.name(class="form-control search-item", id='search-form')}}
-{{form.submit(class='btn search-button', id='submit')}}
+    {{form.name.label(class='form-label')}}<br>
+    {{form.name(class="form-control search-item", id='search-form')}}
+    {{form.submit(class='btn search-button', id='submit')}}
 </div>
 {% with messages = get_flashed_messages() %}
 {% if messages %}
@@ -15,24 +15,29 @@
 {% endwith %}
 <table class="table container">
     <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Price</th>
-            <th scope="col">Quantity</th>
-        </tr>
-        
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Quantity</th>
+    </tr>
+
     </thead>
     <tbody>
 
-        {% for item in items: %}
-        <tr>
-            <td>{{ item.name}}</td>
-            <td>{{ item.price|int }}</td>
-            <td>{{ item.quantity|int }}</td>
-            <td><a href="{{ url_for('edit', item_id=item.id)}}" class="btn btn-warning">Edit</a></td>
-            <td><a href="{{ url_for('sale', item_id=item.id)}}" class="btn" id="submit">Sell</a></td>
-        </tr>
-        {% endfor %}
+    {% for item in items: %}
+    <tr>
+        <td>{{ item.name}}</td>
+        <td>{% if item.price.is_integer() %}
+            {{ item.price|int }}
+            {% else %}
+            {{ item.price }}
+            {% endif %}
+        </td>
+        <td>{{ item.quantity|int }}</td>
+        <td><a href="{{ url_for('edit', item_id=item.id)}}" class="btn btn-warning">Edit</a></td>
+        <td><a href="{{ url_for('sale', item_id=item.id)}}" class="btn" id="submit">Sell</a></td>
+    </tr>
+    {% endfor %}
     </tbody>
 </table>
 {% endblock %}

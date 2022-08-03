@@ -2,8 +2,8 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 <div class="container">
-{{ wtf.quick_form(form)}}
-<a href="{{ url_for('delete_item', item_id=item.id)}}" class="btn btn-danger">Delete</a>
+    {{ wtf.quick_form(form)}}
+    <a href="{{ url_for('delete_item', item_id=item.id)}}" class="btn btn-danger">Delete</a>
 </div>
 {% endblock %}
 {% include 'footer.html' %}

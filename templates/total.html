@@ -2,23 +2,34 @@
 
 <table class="table container sale-table">
     <thead>
-        <tr>
-            <th scope="col">Total</th>
-            <th scope="col">Total Profit</th>
-            <th scope="col">Date</th>
+    <tr>
+        <th scope="col">Total</th>
+        <th scope="col">Total Profit</th>
+        <th scope="col">Date</th>
 
-        </tr>
+    </tr>
     </thead>
     <tbody>
 
-        {% for i in total:%}
-        <tr>
-            <td>{{ i.total|int}}</td>
-            <td>{{ i.total_profit|int }}</td>
-            <td>{{ i.date }}</td>
-            <td><a class='btn search-button' id="submit" href="{{ url_for('daily_total', year_month=i.date) }}">Daily</a></td>
-        </tr>
-        {% endfor %}
+    {% for i in total:%}
+    <tr>
+        <td>{% if i.total.is_integer() %}
+            {{ i.total|int }}
+            {% else %}
+            {{ i.total }}
+            {% endif %}
+        </td>
+        <td>{% if i.total_profit.is_integer() %}
+            {{ i.total_profit|int }}
+            {% else %}
+            {{ i.total_profit }}
+            {% endif %}
+        </td>
+        <td>{{ i.date }}</td>
+        <td><a class='btn search-button' id="submit" href="{{ url_for('daily_total', year_month=i.date) }}">Daily</a>
+        </td>
+    </tr>
+    {% endfor %}
     </tbody>
 </table>
 

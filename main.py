@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, abort, fla
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
-from sqlalchemy import desc
+from sqlalchemy import desc, and_
 from flask_wtf import FlaskForm, form
 from wtforms import StringField, SubmitField
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
@@ -200,7 +200,7 @@ def sale(item_id):
         return render_template('sale.html', form=sale_form, item=item_to_update)
 
     if sale_form.validate_on_submit():
-        price = int(sale_form.price.data)
+        price = float(sale_form.price.data)
         quantity = int(sale_form.quantity.data)
         updated_item = Items.query.get(item_id)
         total_sold = price * quantity
@@ -242,10 +242,13 @@ def sale(item_id):
 @admin_only
 def edit(item_id):
     item = Items.query.get(item_id)
-
+    if item.price.is_integer():
+        price = int(item.price)
+    else:
+        price = item.price
     edit_item_form = EditItem(
         name=item.name,
-        price=int(item.price),
+        price=price,
         quantity=int(item.quantity)
     )
 
@@ -269,11 +272,8 @@ def monthly_total():
 
     sold_items1 = [i for i in sold_item if i.date.year ==
                    year and i.date.month == month]
-    for i in sold_items1:
-        print(i.total)
     total1 = [i for i in total if i.date.year ==
               year and i.date.month == month]
-
     total_money, total_profit = 0, 0
 
     for i in sold_items1:
@@ -289,10 +289,9 @@ def monthly_total():
         db.session.add(add_total)
         db.session.commit()
     else:
-        for i in total:
+        for i in total1:
             i.total = total_money
             i.total_profit = total_profit
-            i.date = datetime.now()
             db.session.commit()
 
     new_total = MonthlyTotal.query.all()
@@ -303,7 +302,7 @@ def monthly_total():
 @app.route('/daily_total/<year_month>')
 def daily_total(year_month):
     requested_year, requested_month = int(year_month.split('-')[0]), int(year_month.split('-')[1])
-    start_date = datetime.strptime(f'{requested_year}-{requested_month}-1', '%Y-%m-%d')
+    start_date = datetime.date(datetime.strptime(f'{requested_year}-{requested_month}', '%Y-%m'))
 
     if (requested_year % 400 == 0) and (requested_year % 100 == 0) and requested_month == 2:
         end_date = datetime.strptime(f'{requested_year}-{requested_month}-29', '%Y-%m-%d')
@@ -316,12 +315,10 @@ def daily_total(year_month):
 
     sold_item = Sale.query.filter_by(date=datetime.now().date()).all()
     first_daily_total = DailyTotal.query.filter_by(date=datetime.now().date()).all()
-    print(first_daily_total, 1)
     total_money, total_profit = 0, 0
-    print(total_profit, 2)
     for i in sold_item:
-        total_money += i.price
-        total_profit += i.total
+        total_money += float(i.price)
+        total_profit += float(i.total)
     if not first_daily_total:
         add_total = DailyTotal(
             daily=total_money,
