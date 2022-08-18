@@ -11,10 +11,10 @@
     {% for item in items: %}
     <tr>
         <td>{{ item.name}}</td>
-        <td>{% if item.price.is_integer() %}
-            {{ item.price|int }}
+        <td>{% if (item.price/item.quantity).is_integer() %}
+            {{ (item.price/item.quantity)|int }}
             {% else %}
-            {{ item.price }}
+            {{ (item.price/item.quantity) }}
             {% endif %}
         </td>
         <td>{{ item.quantity|int }}</td>

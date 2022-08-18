@@ -348,9 +348,13 @@ def sold_items(date):
 @app.route('/edit_sold_items/<item_id>', methods=['POST', 'GET'])
 def edit_sold_items(item_id):
     item = Sale.query.get(item_id)
+    if (item.price/item.quantity).is_integer():
+        a_price = int(item.price/item.quantity)
+    else:
+        a_price = item.price/item.quantity
     edit_sold_item_form = EditSoldItem(
         name=item.name,
-        price=int(item.price),
+        price=a_price,
     )
 
     if request.method == 'GET':
@@ -358,12 +362,12 @@ def edit_sold_items(item_id):
 
     if edit_sold_item_form.validate_on_submit():
         item.name = edit_sold_item_form.name.data
-        item.price = edit_sold_item_form.price.data
-        item.total = float(edit_sold_item_form.price.data) - item.purchased_price
+        item.price = int(edit_sold_item_form.price.data) * item.quantity
+        item.total = (float(edit_sold_item_form.price.data) - item.purchased_price) * item.quantity
         db.session.commit()
 
-        sold_item = Sale.query.filter_by(date=datetime.now().day).all()
-        first_daily_total = DailyTotal.query.filter_by(date=datetime.now().day).all()
+        sold_item = Sale.query.filter_by(date=item.date).all()
+        first_daily_total = DailyTotal.query.filter_by(date=item.date).all()
         total_money, total_profit = 0, 0
 
         for i in sold_item:
